@@ -20,7 +20,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/generator_iterator.hpp>
 
-// Definitions for random number generation
+/* Definitions for random number generation */
 typedef boost::mt19937                                      T_base_prng;
 typedef boost::normal_distribution<>                        T_norm_dist;
 typedef boost::variate_generator<T_base_prng&, T_norm_dist> T_norm_varg;
