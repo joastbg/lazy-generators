@@ -7,4 +7,4 @@ Usage: `make run`
 
 Sample output:
 
-![sample](https://github.com/joastbg/lazy-generators/blob/master/demo.png)
+![ScreenShot](https://github.com/joastbg/lazy-generators/blob/master/demo.png)
