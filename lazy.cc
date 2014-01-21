@@ -32,81 +32,82 @@ typedef boost::variate_generator<T_base_prng&, T_norm_dist> T_norm_varg;
 class fib_generator
 {
 public:
-	typedef int result_type;
-	fib_generator() : one(0), two(1), i(0) { }
-	int operator()() {
+  typedef int result_type;
+  fib_generator() : one(0), two(1), i(0) { }
+  int operator()() {
 
-		if (++i < 2) return i;
+    if (++i < 2) return i;
 
-		int res = one + two;
+    int res = one + two;
 
-		one = two;
-		two = res;
+    one = two;
+    two = res;
 
-		return res;
-	}
+    return res;
+  }
 private:
-	int one, two, i;
+  int one, two, i;
 };
 
 /* Random number generator, taking a seed as input */
 class lazy_random_generator
 {
 public:
-	typedef double result_type;
-	lazy_random_generator(double mean, double stdev, int seed) : base_prng(seed), norm_dist(mean, stdev), norm_varg(base_prng, norm_dist) { }
-	double operator()() {
-		return norm_varg();
-	}
+  typedef double result_type;
+  lazy_random_generator(double mean, double stdev, int seed) : base_prng(seed), norm_dist(mean, stdev), norm_varg(base_prng, norm_dist) { }
+  double operator()() {
+    return norm_varg();
+  }
 private:
-	T_base_prng  base_prng;
-	T_norm_dist  norm_dist;
-	T_norm_varg  norm_varg;
+  T_base_prng  base_prng;
+  T_norm_dist  norm_dist;
+  T_norm_varg  norm_varg;
 };
 
 /* Brownian motion generator */
 class lazy_brownian_motion
 {
 public:
-	typedef double result_type;
+  typedef double result_type;
 
-	lazy_brownian_motion(double mean, double stdev, int seed) : base_prng(seed), norm_dist(mean, stdev), norm_varg(base_prng, norm_dist) { }
+  lazy_brownian_motion(double mean, double stdev, int seed) : base_prng(seed), norm_dist(mean, stdev), norm_varg(base_prng, norm_dist) { }
 
-	double operator()() {
-		memo+= norm_varg();
-		return memo;
-	}
+  double operator()() {
+    memo+= norm_varg();
+    return memo;
+  }
 private:
-	double       memo;
-	T_base_prng  base_prng;
-	T_norm_dist  norm_dist;
-	T_norm_varg  norm_varg;
+  double       memo;
+  T_base_prng  base_prng;
+  T_norm_dist  norm_dist;
+  T_norm_varg  norm_varg;
 };
 
 class asset_path
 {
 public:
-	typedef double result_type;
+  typedef double result_type;
 
-	asset_path(double mean, double stdev, int seed) : memo(1), base_prng(seed), norm_dist(mean, stdev), norm_varg(base_prng, norm_dist) { }
+  asset_path(double mean, double stdev, int seed) : memo(1), base_prng(seed), norm_dist(mean, stdev), norm_varg(base_prng, norm_dist) { }
 
-	double operator()() {
-		/* TODO: Take as parameters, as well as generator (norm_varg()) */
-		double S0 = 50.0;
-		double mu = 0.04;
-		double sig = 0.1;
-		double dt = 1/356.0;
-		memo *= exp((mu-sig*sig/2)*dt+sig*sqrt(dt)*norm_varg());
-		return  S0*memo;
-	}
+  double operator()() {
+    /* TODO: Take as parameters, as well as generator (norm_varg()) */
+    double S0 = 50.0;
+    double mu = 0.04;
+    double sig = 0.1;
+    double dt = 1/356.0;
+    double temp = S0*memo;
+    memo *= exp((mu-sig*sig/2)*dt+sig*sqrt(dt)*norm_varg());
+    return  temp;
+  }
 
-	void reset() { memo = 1; }
+  void reset() { memo = 1; }
 
 private:
-	double       memo;
-	T_base_prng  base_prng;
-	T_norm_dist  norm_dist;
-	T_norm_varg  norm_varg;
+  double       memo;
+  T_base_prng  base_prng;
+  T_norm_dist  norm_dist;
+  T_norm_varg  norm_varg;
 };
 
 int main()
@@ -131,18 +132,30 @@ int main()
 	// 	std::cout << *it3 << std::endl;
 	// }
 
-	asset_path bgen(0,1,static_cast<unsigned int>(std::time(0)));
-	boost::generator_iterator_generator<asset_path>::type it4 = boost::make_generator_iterator(bgen);
+  asset_path bgen(0,1,static_cast<unsigned int>(std::time(0)));
+  boost::generator_iterator_generator<asset_path>::type it4 = boost::make_generator_iterator(bgen);
 
-	for (int r = 0; r < 20; r++) {
-		std::cout << "# " << r << std::endl;
-		for (int i = 0; i < 365*2; i++, it4++) {
-			std::cout << i << "   " << *it4 << std::endl;
-		}
-		std::cout << std::endl;
-		// reset generator
-		bgen.reset();
-	}
+  std::cout << "# Simulation" << std::endl;
+  int i=0;
+  std::vector<double> average(365*2);
+  for (int r = 0; r < 20; r++) {
 
-	return 0;
+    std::cout << "# " << r << std::endl;
+    for (i = 0; i < 365*2; ++i, ++it4) {
+      if (i != 0) {
+        average[i] += (*(it4) / 20.0);
+        std::cout << (i-1) << "   " << *(it4) << std::endl;
+      }
+    }
+    std::cout << std::endl << std::endl;
+    // reset generator
+    bgen.reset();
+  }
+
+  std::cout << "# " << 20 << std::endl;
+  for (i = 1; i < 365*2; ++i) {
+    std::cout << (i-1) << "   " << average[i] << std::endl;
+  }
+
+  return 0;
 }
