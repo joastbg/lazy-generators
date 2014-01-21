@@ -1,4 +1,4 @@
-/* 
+/*
  * lazy.cc
  *
  * Copyright Johan Astborg 2014
@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <vector>
-#include <ctime> 
+#include <ctime>
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -33,7 +33,7 @@ class fib_generator
 public:
 	typedef int result_type;
 	fib_generator() : one(0), two(1), i(0) { }
-	int operator()() { 
+	int operator()() {
 
 		if (++i < 2) return i;
 
@@ -100,11 +100,11 @@ int main()
 	// 	std::cout << *it2 << std::endl;
 	// }
 
-    lazy_brownian_motion bgen(0,1,static_cast<unsigned int>(std::time(0)));
+        lazy_brownian_motion bgen(0,1,static_cast<unsigned int>(std::time(0)));
 	boost::generator_iterator_generator<lazy_brownian_motion>::type it3 = boost::make_generator_iterator(bgen);
 	for (int i = 0; i < 1500; ++i, ++it3) {
 		std::cout << *it3 << std::endl;
 	}
-  
+
 	return 0;
 }
