@@ -1,11 +1,10 @@
-CXXFLAGS = -pipe -O2 -Wall -W -ansi -pedantic-errors
-CXXFLAGS += -Wmissing-braces -Wparentheses -Wold-style-cast
+CXXFLAGS = -pipe -O2 -Wall
 
 all: lazy
-	g++ -c $(CXXFLAGS) lazy.cc
+	g++ -lpthread -lboost_thread -lboost_system -c $(CXXFLAGS) lazy.cc -lboost_system
 
 clean:
 	rm -rf *o lazy temp.dat
 
-run: lazy
+run: 
 	./lazy > ./temp.dat && gnuplot -persist plot.gnu
